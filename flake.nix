@@ -23,6 +23,8 @@
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
+      imports = [ inputs.flake-parts.flakeModules.easyOverlay ];
+
       systems = [
         "x86_64-linux"
         "aarch64-linux"
@@ -73,6 +75,8 @@
             inherit hyprland-helpers;
           }
           // workspaceNixPackages;
+
+          overlayAttrs = config.packages;
 
           devShells.default = craneLib.devShell {
             checks = config.checks;
