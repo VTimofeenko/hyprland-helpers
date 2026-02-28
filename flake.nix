@@ -14,11 +14,24 @@
     };
   };
 
-  outputs = inputs@{ self, nixpkgs, flake-parts, crane, ... }:
+  outputs =
+    inputs@{
+      self,
+      nixpkgs,
+      flake-parts,
+      crane,
+      ...
+    }:
     flake-parts.lib.mkFlake { inherit inputs; } {
-      systems = [ "x86_64-linux" "aarch64-linux" "aarch64-darwin" "x86_64-darwin" ];
+      systems = [
+        "x86_64-linux"
+        "aarch64-linux"
+        "aarch64-darwin"
+        "x86_64-darwin"
+      ];
 
-      perSystem = { config, pkgs, ... }:
+      perSystem =
+        { config, pkgs, ... }:
         let
           craneLib = crane.mkLib pkgs;
           version = "0.1.0";
@@ -35,10 +48,13 @@
 
           cargoArtifacts = craneLib.buildDepsOnly commonArgs;
 
-          hyprland-helpers = craneLib.buildPackage (commonArgs // {
-            inherit cargoArtifacts;
-            meta.mainProgram = "";
-          });
+          hyprland-helpers = craneLib.buildPackage (
+            commonArgs
+            // {
+              inherit cargoArtifacts;
+              meta.mainProgram = "";
+            }
+          );
 
           workspaceMembers = (builtins.fromTOML (builtins.readFile ./src/Cargo.toml)).workspace.members;
           workspaceNixPackages = builtins.listToAttrs (
@@ -57,7 +73,8 @@
           packages = {
             default = hyprland-helpers;
             inherit hyprland-helpers;
-          } // workspaceNixPackages;
+          }
+          // workspaceNixPackages;
 
           devShells.default = craneLib.devShell {
             checks = config.checks;
